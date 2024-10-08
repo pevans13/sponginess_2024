@@ -114,25 +114,20 @@ part1prepareData <- F
 # Step 2: create the non-slope CN maps based on land cover and HSG 
 part2cnCreate <- F
 # Step 3: create the slope-adjusted CN maps based on land cover and HSG 
-part3cnCreateSlope <- T
+part3cnCreateSlope <- F
 # Step 4: create the initial abstraction maps
 part4Ia <- F
-# Step 4 chooses. If 'part4Ia' is TRUE, select which Ia to create
-Ia20 <- F # 0.2 * s
-Ia05 <- F # 0.05 * S
 IaVary <- T # IaLand * S (where different land covers have different Ias)
 # Step 5: create storm precipitation
 part5Precip <- F
 # Step 6: calculate the final run-off (Q, in mm) based on sponginess
 part6Qcalculation <- F
 # Step 6 chooses. If 'part6Qcalculation' is TRUE, select which Q to create based on different Ia
-Ia20.Q <- F # 0.2 * s
-Ia05.Q <- F # 0.05 * S
 IaVary.Q <- F # IaLand * S (where different land covers have different Ias)
 # Step 7: convert the final maps from the base resolution to the final resolution
 part7finalResolutionQ <- F
 # Step 8: create the final visual output for the results
-part8qVisualimages <- F
+part8qVisualimages <- T
 
 #### load settings ####
 ## automatic install of packages if they are not installed already
@@ -319,11 +314,11 @@ writeLines(c(
     
     "\n\tfilename: 'data/intermediate_outputs/S_amc[x].tif' (with x representing a number)", "\n",
     "\tdetails: The data contain spatial S (maximum potential retention) values based on the specific number of AMC  used.", "\n",
-  "\tUnits: CN (unitless) or mm (for S)", "\n",
-  "\tSpatial resolution: 25-m", "\n",
-  "\tSpatial extent: GB", "\n",
-  "\tTemporal coverage: 2015", "\n",
-  "\tFinal projection: 27700"),
+    "\tUnits: CN (unitless) or mm (for S)", "\n",
+    "\tSpatial resolution: 25-m", "\n",
+    "\tSpatial extent: GB", "\n",
+    "\tTemporal coverage: 2015", "\n",
+    "\tFinal projection: 27700"),
   
   paste0("\n-----------------------------"),
   paste0("All files in the below section were created using the 'cnMapsWithSlope.R' script"
@@ -340,7 +335,62 @@ writeLines(c(
     "\tSpatial resolution: 25-m", "\n",
     "\tSpatial extent: GB", "\n",
     "\tTemporal coverage: 2015", "\n",
-    "\tFinal projection: 27700")
+    "\tFinal projection: 27700"),
+  
+  paste0("\n-----------------------------"),
+  paste0("All files in the below section were created using the 'IaCreation.R' script"
+         , "\nSection last updated: ", format(Sys.Date())),
+  
+  paste0(
+    "\nIa (Initial abstraction) files:", "\n",  
+    "\tfilename: 'data/raw/IaTableLAI_20240626.xlsx'", "\n",
+    "\tdetails: The data in this file indicate the leaf area index (LAI) per land cover type for the UK. The data were obtained from references in the file, which can be found in the manuscript. The prefix 'Ia' stands for initial abstraction i.e. the amount of water 'soaked-up' by the environment before it could runoff. Ia was calculated following: Ia = λS
+    where:
+      Ia = initial abstraction (mm)
+      λ = proportion of precipitation in a location that will not be involved in direct runoff.
+      S = maximum potential retention (mm)", "\n",
+    
+    "\n\tfilename: 'data/intermediate_outputs/IaLC_delta.tif'", "\n",
+    "\tdetails: The data were calculated based on the conversion delta rates for specific land covers. See Evans et al. (20xx) for specific values.", "\n",
+    
+    "\n\tfilename: 'data/intermediate_outputs/IaSlopeLC.tif'", "\n",
+    "\tdetails: The data were calculated calculated using Ia = 'IaLC_delta.tif' * S", "\n",
+    "\tUnits: mm", "\n",
+    "\tSpatial resolution: 25-m", "\n",
+    "\tSpatial extent: GB", "\n",
+    "\tTemporal coverage: 2015", "\n",
+    "\tFinal projection: 27700"),
+  
+  paste0("\n-----------------------------"),
+  paste0("All files in the below section were created using the 'final_resolution_Q.R' script"
+         , "\nSection last updated: ", format(Sys.Date())),
+  
+  paste0(
+    "\nQ (run-off) files:", "\n",  
+    "\tfilenames: 'results/final_results/[mean/median]/[tif file]'", "\n",
+    "\t\twhere:
+    \t\t'mean' or 'median' = averaging method used when resampling from 25-m to 1-km resolutions
+    \t\t[tif file] = the final result of:
+    \t\t\t - the depth of runoff ('Q') from a pixel (i.e. the amount of water that leaves a pixel).
+    \t\t\t - The initial abstraction (Ia) amount
+    \t\t\t - The maximum potential retention ('S'), in mm", "\n",
+    "\tdetails: The resolution of these data are ", resolution.final, " m2, which was aggregated from the initial ", resolution.base, " m2 output.",
+    "\tUnits:  Q (mm depth) pixel runoff | Ia (unitless)", "\n",
+    "\tSpatial resolution: ", resolution.final, "m2", "\n",
+    "\tSpatial extent: GB", "\n",
+    "\tTemporal coverage: 2015/2016", "\n",
+    "\tFinal projection: 27700"),
+  
+  paste0(
+    "\n\tfilename: 'results/final_results/final_results_1000.csv'", "\n",
+    "\tdetails: The data shows the above data in spreadsheet form ", resolution.final, " m2, using median averages calculations.", "\n",
+    "\tcolumns: \n",
+    "\t\t'x' and 'y' = columns indicating the centroid of each grid cell at ", resolution.final, " m2, showing the X and Y coordinate, respectively (EPSG:", project.crs,")", "\n",
+    "\t\t'Ia[type of Ia used]' = the initial abstraction (Ia) amount, in mm, calculated based on the maximum potential retention (or infiltration)", "\n",
+    "\t\t\t'Ia5pc' and 'Ia20pc' indicate that the lambda used in the calculation of Ia was 5% and 20%, respectively", "\n",
+    "\t\t\t'IaSlopeLC' indicates that the lambda used in the calculation of Ia was varied spatially via an influence of land cover", "\n",
+    "\t\t'[precip]_[Ia]_Qmm_[stat]', with [precip] indicating that precipitation amount used used in the calculations, [Ia] 'Ia' indicateing which Ia was used (note if 'IaLC', see Evans et al. (20xx) for specific proportions used), and [stat] = the statistic that was used to upscale the data from ", resolution.base, " to ", resolution.final, "\n"
+  )
 )
 , fileConn)
 close(fileConn)

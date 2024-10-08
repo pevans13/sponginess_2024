@@ -82,4 +82,4 @@ cat("calculating S based on the slope-adjusted CN2...\n")
 Samc2Slope <- (25400/CNslope) - 254
 # save
 cat("saving S based on the slope-adjusted CN2...\n")
-writeRaster(Samc2Slope, file.path(intermediatePath, "S_amc3_slope.tif"), overwrite = T)
+writeRaster(Samc2Slope, file.path(intermediatePath, "S_amc2_slope.tif"), overwrite = T)
