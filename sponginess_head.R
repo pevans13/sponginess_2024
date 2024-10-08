@@ -44,7 +44,6 @@ gc()
 files.toInclude <- c("data/raw", "data/intermediate_outputs"
                      # non-data architecture
                      , "code/r_scripts"
-                     , "results/tables"
                      , "images"
                      , "docs/references", "docs/spreadsheets"
                      
@@ -52,8 +51,7 @@ files.toInclude <- c("data/raw", "data/intermediate_outputs"
                      , "data/intermediate_outputs/cn"
                      
                      # saving figures
-                     , "results/figures"
-                     , "results/figures/maps"
+                     , "results/images"
 )
 pblapply(files.toInclude, function(x) {dir.create(x, showWarnings = F, recursive = T)})
 rm(files.toInclude)
@@ -62,14 +60,7 @@ rm(files.toInclude)
 rscriptsPath <- file.path("code", "r_scripts")
 
 #### User input ####
-## set the name of the folder you want to store all of the output to
-## This can be the current date, for ease of determining the most recent run
-## Note: comment out below
-saveName <- Sys.Date()
-# saveName <- "2024-03-15"
-
 ## set the results directory to a local directory on your computer
-resultsPath <- file.path("results", saveName)
 intermediatePath <- file.path("data", "intermediate_outputs")
 dataPath <- file.path("data", "raw")
 
@@ -93,11 +84,11 @@ project.crs <- 27700
 
 ## set the datasets you want to include in the analysis
 ### hydrologic soil group (HSG)
-data.hsg <- file.path("C:/Users/paueva/OneDrive - UKCEH/flood", "data_in", "hsg_class", "HYSOGs250m.tif")
+data.hsg <- file.path("hsg_class", "HYSOGs250m.tif")
 ### land cover map (LCM)
-data.lcm <- file.path("C:/Users/paueva/OneDrive - UKCEH/flood", "data_in", "land_cover", "LCM2015PlusCrops.tif")
+data.lcm <- file.path("land_cover", "LCM2015PlusCrops.tif")
 ### land cover map (LCM)
-data.slope <- file.path("C:/Users/paueva/OneDrive - UKCEH/Data/dtm_50m/IHDTM_50m_toUse.tif")
+data.slope <- file.path("IHDTM_50m_toUse.tif")
 
 ## set final paths for different data at the correct resolution and extent
 finalHsg <- file.path("data", "raw", "hsg_data.tif")
